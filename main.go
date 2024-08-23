@@ -2,32 +2,40 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/bjcorder/go-api-boilerplate/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	router := http.NewServeMux()
+	fmt.Println("Initializing server...")
 
-	router.HandleFunc("GET /api/v1/test", basicHandler)
+	godotenv.Load(".env")
+
+	portString := os.Getenv("SERVER_PORT")
+	if portString == "" {
+		log.Fatal("Unable to get value: SERVER_PORT")
+	}
+
+	router := chi.NewRouter()
 
 	stack := middleware.CreateStack(
 		middleware.Logging,
 	)
 
-	server := http.Server{
-		Addr:    ":3000",
+	serve := &http.Server{
 		Handler: stack(router),
+		Addr:    ":" + portString,
 	}
 
-	err := server.ListenAndServe()
+	log.Printf("Server starting on port %v", portString)
+	err := serve.ListenAndServe()
 	if err != nil {
-		fmt.Println("Failed to listen to server", err)
+		log.Fatal(err)
 	}
-}
-
-func basicHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello Test"))
 
 }
