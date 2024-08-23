@@ -27,6 +27,11 @@ func main() {
 		middleware.Logging,
 	)
 
+	v1Router := chi.NewRouter()
+	v1Router.HandleFunc("/healthz", handlerHealthz)
+
+	router.Mount("/v1", v1Router)
+
 	serve := &http.Server{
 		Handler: stack(router),
 		Addr:    ":" + portString,
