@@ -17,3 +17,12 @@ func respondWithJSON(w http.ResponseWriter, statusCode int, payload interface{})
 	w.WriteHeader(statusCode)
 	w.Write(data)
 }
+func respondWithError(w http.ResponseWriter, statusCode int, msg string) {
+	if statusCode > 499 {
+		log.Println("Responding with 5XX level error: %v", msg)
+	}
+	type errResponse struct {
+		Error string `json:"error"`
+	}
+	respondWithJSON(w, statusCode, errResponse{msg})
+}
